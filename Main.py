@@ -25,9 +25,7 @@ def int_to_bitcoin_address(private_key_int):
     # 1. Convert integer to 32-byte big-endian bytes
     private_key_bytes = private_key_int.to_bytes(32, byteorder='big')
     
-    try:
-        # Standard lightweight fallback for address derivation structure
-        # In a full setup, this mirrors secp256k1 math
+
         
 
 def main():
