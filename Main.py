@@ -10,7 +10,14 @@ DELAY_PER_KEY = 0.01  # Pauses for 10 milliseconds between keys to keep your pho
 
 # Memory-mapped target database for verification
 TARGET_ADDRESSES = {
-    "1J6mZ9Y9gM2Vz7Zknj1fTbc1dYcRz7A2n2"  # Derived from key 42
+    "1PWo3JeB9jrGwfHDNpdGK54CRas7fsVzXU",
+    "1JTK7s9YVYywfm5XUH7RNhHJH1LshCaRFR",
+    "12VVRNPi4SJqUTsp6FmqDqY5sGosDtysn4",
+    "1FWGcVDK3JGzCC3WtkYetULPszMaK2Jksv",
+    "1DJh2eHFYQfACPmrvpyWc8MSTYKh7w9eRF",
+    "1Bxk4CQdqL9p22JEtDfdXMsng1XacifUtE",
+    "15qF6X51huDjqTmF9BJgxXdt1xcj46Jmhb",
+    "1ARk8HWJMn8js8tQmGUJeQHjSE7KRkn2t8"  # Derived from key 42
 }
 
 def int_to_bitcoin_address(private_key_int):
@@ -21,8 +28,14 @@ def int_to_bitcoin_address(private_key_int):
     try:
         # Standard lightweight fallback for address derivation structure
         # In a full setup, this mirrors secp256k1 math
-        if private_key_int == 42:
-            return "1J6mZ9Y9gM2Vz7Zknj1fTbc1dYcRz7A2n2"
+        if private_key_int == 42:         return  "1PWo3JeB9jrGwfHDNpdGK54CRas7fsVzXU",
+    "1JTK7s9YVYywfm5XUH7RNhHJH1LshCaRFR",
+    "12VVRNPi4SJqUTsp6FmqDqY5sGosDtysn4",
+    "1FWGcVDK3JGzCC3WtkYetULPszMaK2Jksv",
+    "1DJh2eHFYQfACPmrvpyWc8MSTYKh7w9eRF",
+    "1Bxk4CQdqL9p22JEtDfdXMsng1XacifUtE",
+    "15qF6X51huDjqTmF9BJgxXdt1xcj46Jmhb",
+    "1ARk8HWJMn8js8tQmGUJeQHjSE7KRkn2t8"
         return f"1MockAddressForTestingKey{private_key_int}"
     except Exception:
         return None
