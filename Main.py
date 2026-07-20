@@ -2,6 +2,7 @@ import hashlib
 import time
 import os
 import sys
+import ecdsa  # Required for Elliptic Curve math
 
 # --- Configuration & Tuning Parameters ---
 MIN_RANGE = 71
@@ -17,16 +18,64 @@ TARGET_ADDRESSES = {
     "1DJh2eHFYQfACPmrvpyWc8MSTYKh7w9eRF",
     "1Bxk4CQdqL9p22JEtDfdXMsng1XacifUtE",
     "15qF6X51huDjqTmF9BJgxXdt1xcj46Jmhb",
-    "1ARk8HWJMn8js8tQmGUJeQHjSE7KRkn2t8"  # Derived from key 42
+    "1ARk8HWJMn8js8tQmGUJeQHjSE7KRkn2t8"  
 }
 
-def int_to_bitcoin_address(private_key_int):
-    """Converts an integer private key into a compressed Bitcoin address."""
-    # 1. Convert integer to 32-byte big-endian bytes
-    private_key_bytes = private_key_int.to_bytes(32, byteorder='big')
+def base58_encode(b):
+    """Encodes a bytes object into a Base58 string (Bitcoin standard)."""
+    B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    n = int.from_bytes(b, byteorder='big')
+    res = []
+    while n > 0:
+        n, r = divmod(n, 58)
+        res.append(B58_ALPHABET[r])
+    res = "".join(reversed(res))
     
+    # Pad leading zero bytes with '1's
+    pad = 0
+    for byte in b:
+        if byte == 0:
+            pad += 1
+        else:
+            break
+    return "1" * pad + res
 
+def int_to_bitcoin_address(private_key_int):
+    """Converts an integer private key into a compressed Bitcoin address (Legacy P2PKH)."""
+    try:
+        # 1. Convert integer to 32-byte big-endian private key
+        private_key_bytes = private_key_int.to_bytes(32, byteorder='big')
         
+        # 2. Generate the Public Key using SECP256k1 curve
+        sk = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1)
+        vk = sk.verifying_key
+        
+        # 3. Create the Compressed Public Key (X-coordinate + parity prefix)
+        x_coordinate = vk.to_string()[:32]
+        y_coordinate = vk.to_string()[32:]
+        if y_coordinate[-1] % 2 == 0:
+            public_key_compressed = b'\x02' + x_coordinate
+        else:
+            public_key_compressed = b'\x03' + x_coordinate
+            
+        # 4. SHA-256 hash of the public key
+        sha256 = hashlib.sha256(public_key_compressed).digest()
+        
+        # 5. RIPEMD-160 hash of the SHA-256 hash (Public Key Hash)
+        ripemd160 = hashlib.new('ripemd160', sha256).digest()
+        
+        # 6. Add Network Byte Prefix (0x00 for Mainnet)
+        network_prefix = b'\x00' + ripemd160
+        
+        # 7. Calculate Checksum (Double SHA-256, keep first 4 bytes)
+        checksum = hashlib.sha256(hashlib.sha256(network_prefix).digest()).digest()[:4]
+        
+        # 8. Combine prefix, hash, and checksum, then encode to Base58
+        final_binary = network_prefix + checksum
+        return base58_encode(final_binary)
+        
+    except Exception:
+        return "GenerationError"
 
 def main():
     print("=" * 80)
