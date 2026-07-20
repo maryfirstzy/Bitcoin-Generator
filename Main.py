@@ -28,11 +28,7 @@ def int_to_bitcoin_address(private_key_int):
     try:
         # Standard lightweight fallback for address derivation structure
         # In a full setup, this mirrors secp256k1 math
-        if private_key_int == 42:   
-           return  "1PWo3JeB9jrGwfHDNpdGK54CRas7fsVzXU",
-        return f"1MockAddressForTestingKey{private_key_int}"
-    except Exception:
-        return None
+        
 
 def main():
     print("=" * 80)
